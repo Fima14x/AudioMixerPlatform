@@ -1,0 +1,28 @@
+{
+  "IngressDeviceContains": "CABLE Input",
+  "PersonalOutputContains": "",
+  "StreamOutputContains": "CABLE-A Input",
+  "SampleRate": 48000,
+  "Channels": 2,
+  "BlockMilliseconds": 10,
+  "DiscoveryIntervalMilliseconds": 900,
+  "StaleProcessSeconds": 5,
+  "ApplicationChannels": {
+    "cs2": "GAME",
+    "discord": "CHAT",
+    "teamspeak": "CHAT",
+    "spotify": "MEDIA",
+    "vlc": "MEDIA",
+    "chrome": "AUX",
+    "msedge": "AUX",
+    "firefox": "AUX"
+  },
+  "Channels": {
+    "GAME": { "PersonalGain": 0.75, "StreamGain": 1.0, "PersonalMute": false, "StreamMute": false },
+    "CHAT": { "PersonalGain": 1.0, "StreamGain": 0.85, "PersonalMute": false, "StreamMute": false },
+    "MEDIA": { "PersonalGain": 0.25, "StreamGain": 0.35, "PersonalMute": false, "StreamMute": false },
+    "AUX": { "PersonalGain": 0.0, "StreamGain": 0.0, "PersonalMute": false, "StreamMute": false }
+  },
+  "Personal": { "Gain": 1.0, "Mute": false },
+  "Stream": { "Gain": 1.0, "Mute": false }
+}

@@ -1,0 +1,62 @@
+name: Build Windows Engine Probe
+
+on:
+  push:
+    paths:
+      - 'src/AudioMixer.EngineProbe/**'
+      - 'src/AudioMixer.Desktop/**'
+      - 'global.json'
+      - '.github/workflows/build-engine-probe.yml'
+  pull_request:
+    paths:
+      - 'src/AudioMixer.EngineProbe/**'
+      - 'src/AudioMixer.Desktop/**'
+      - 'global.json'
+      - '.github/workflows/build-engine-probe.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10 LTS SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Engine Probe
+        run: dotnet restore .\src\AudioMixer.EngineProbe\AudioMixer.EngineProbe.csproj
+
+      - name: Build Engine Probe
+        run: dotnet build .\src\AudioMixer.EngineProbe\AudioMixer.EngineProbe.csproj -c Release --no-restore
+
+      - name: Publish framework-dependent Engine Probe
+        run: dotnet publish .\src\AudioMixer.EngineProbe\AudioMixer.EngineProbe.csproj -c Release -r win-x64 --no-self-contained -o .\artifacts\EngineProbe-win-x64
+
+      - name: Restore Windows Desktop
+        run: dotnet restore .\src\AudioMixer.Desktop\AudioMixer.Desktop.csproj
+
+      - name: Build Windows Desktop
+        run: dotnet build .\src\AudioMixer.Desktop\AudioMixer.Desktop.csproj -c Release --no-restore
+
+      - name: Publish framework-dependent Windows Desktop
+        run: dotnet publish .\src\AudioMixer.Desktop\AudioMixer.Desktop.csproj -c Release -r win-x64 --no-self-contained -o .\artifacts\Desktop-win-x64
+
+      - name: Upload Engine Probe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioMixer-EngineProbe-win-x64
+          path: .\artifacts\EngineProbe-win-x64\
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Desktop preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioMixer-Desktop-preview-win-x64
+          path: .\artifacts\Desktop-win-x64\
+          if-no-files-found: error
+          retention-days: 14

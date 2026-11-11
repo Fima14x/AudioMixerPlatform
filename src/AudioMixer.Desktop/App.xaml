@@ -1,0 +1,9 @@
+<Application x:Class="AudioMixer.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <SolidColorBrush x:Key="PanelBrush" Color="#FF222633" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF7187FF" />
+    </Application.Resources>
+</Application>
