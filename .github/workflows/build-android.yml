@@ -32,7 +32,19 @@ jobs:
 
       - name: Build debug APK
         working-directory: mobile
-        run: gradle --no-daemon --no-build-cache --stacktrace :app:assembleDebug
+        run: gradle --no-daemon --no-build-cache --stacktrace --console=plain :app:assembleDebug --info
+
+      - name: Upload Kotlin compiler diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioMixer-Android-build-diagnostics
+          path: |
+            mobile/app/build/reports/
+            mobile/app/build/tmp/kotlin-classes/debug/
+            mobile/app/build/tmp/compileDebugKotlin/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

@@ -33,9 +33,9 @@ public sealed class MixerEngine : IAsyncDisposable
         if (string.Equals(_personalDevice.ID, _streamDevice.ID, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Personal и Stream должны выводиться в разные аудиоустройства.");
 
-        var format = WaveFormat.CreateIeeeFloatWaveFormat(settings.SampleRate, settings.Channels);
+        var format = WaveFormat.CreateIeeeFloatWaveFormat(settings.SampleRate, settings.AudioChannels);
         var blockFrames = settings.SampleRate * settings.BlockMilliseconds / 1000;
-        var blockSamples = blockFrames * settings.Channels;
+        var blockSamples = blockFrames * settings.AudioChannels;
         _personalMix = new float[blockSamples];
         _streamMix = new float[blockSamples];
         _personalBuffer = new FloatOutputProvider(format, TimeSpan.FromMilliseconds(250));
@@ -76,10 +76,10 @@ public sealed class MixerEngine : IAsyncDisposable
     public async Task<bool> AddProcessAsync(int processId, string processName, string channel, CancellationToken cancellationToken = default)
     {
         if (_sources.ContainsKey(processId)) return false;
-        var blockSamples = _settings.SampleRate * _settings.BlockMilliseconds / 1000 * _settings.Channels;
-        var ringSamples = _settings.SampleRate * _settings.Channels / 2; // 500 ms per process.
+        var blockSamples = _settings.SampleRate * _settings.BlockMilliseconds / 1000 * _settings.AudioChannels;
+        var ringSamples = _settings.SampleRate * _settings.AudioChannels / 2; // 500 ms per process.
         var source = await ProcessAudioSource.StartAsync(
-            processId, processName, channel, _settings.SampleRate, _settings.Channels,
+            processId, processName, channel, _settings.SampleRate, _settings.AudioChannels,
             blockSamples, ringSamples, cancellationToken);
         if (_sources.TryAdd(processId, source))
         {
@@ -151,7 +151,7 @@ public sealed class MixerEngine : IAsyncDisposable
                 personal = new { device = PersonalDeviceName, gain = settings.Personal.Gain * 100f, muted = settings.Personal.Mute, peak = PersonalPeak, error = _personalOutputError },
                 stream = new { device = StreamDeviceName, gain = settings.Stream.Gain * 100f, muted = settings.Stream.Mute, peak = StreamPeak, error = _streamOutputError }
             },
-            channels = settings.Channels.Select(pair => new
+            channels = settings.ChannelMixes.Select(pair => new
             {
                 id = pair.Key,
                 personalGain = pair.Value.PersonalGain * 100f,
@@ -199,7 +199,7 @@ public sealed class MixerEngine : IAsyncDisposable
             {
                 var available = source.Samples.ReadPadded(source.Scratch);
                 _ = available; // Silence padding keeps every source block aligned to the engine tick.
-                if (!_settings.Channels.TryGetValue(source.Channel, out var channel))
+                if (!_settings.ChannelMixes.TryGetValue(source.Channel, out var channel))
                     continue;
 
                 var personalGain = _settings.Personal.Mute || channel.PersonalMute
@@ -255,7 +255,7 @@ public sealed class MixerEngine : IAsyncDisposable
 
     private ChannelSettings GetChannel(string channel)
     {
-        if (!_settings.Channels.TryGetValue(channel, out var settings))
+        if (!_settings.ChannelMixes.TryGetValue(channel, out var settings))
             throw new ArgumentException($"Unknown channel '{channel}'.", nameof(channel));
         return settings;
     }

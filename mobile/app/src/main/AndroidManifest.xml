@@ -4,6 +4,7 @@
         android:allowBackup="false"
         android:label="AudioMixer Remote"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:enableOnBackInvokedCallback="true"
         android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
