@@ -9,7 +9,7 @@ public sealed class EngineSettings
     public string PersonalOutputContains { get; set; } = ""; // Empty = Windows Multimedia default render device.
     public string StreamOutputContains { get; set; } = "CABLE-A Input";
     public int SampleRate { get; set; } = 48_000;
-    public int Channels { get; set; } = 2;
+    public int AudioChannels { get; set; } = 2;
     public int BlockMilliseconds { get; set; } = 10;
     public int DiscoveryIntervalMilliseconds { get; set; } = 900;
     public int StaleProcessSeconds { get; set; } = 5;
@@ -24,7 +24,7 @@ public sealed class EngineSettings
         ["msedge"] = "AUX",
         ["firefox"] = "AUX"
     };
-    public Dictionary<string, ChannelSettings> Channels { get; set; } = new(StringComparer.OrdinalIgnoreCase)
+    public Dictionary<string, ChannelSettings> ChannelMixes { get; set; } = new(StringComparer.OrdinalIgnoreCase)
     {
         ["GAME"] = new(), ["CHAT"] = new(), ["MEDIA"] = new(), ["AUX"] = new()
     };
@@ -34,7 +34,7 @@ public sealed class EngineSettings
     public void Validate()
     {
         if (SampleRate != 48_000) throw new InvalidOperationException("Stage 1 currently supports 48000 Hz only.");
-        if (Channels != 2) throw new InvalidOperationException("Stage 1 currently supports stereo only.");
+        if (AudioChannels != 2) throw new InvalidOperationException("Stage 1 currently supports stereo only.");
         if (BlockMilliseconds < 5 || BlockMilliseconds > 20 || 1000 % BlockMilliseconds != 0)
             throw new InvalidOperationException("BlockMilliseconds must be 5, 10, or 20 for Stage 1.");
         if (DiscoveryIntervalMilliseconds < 250 || DiscoveryIntervalMilliseconds > 5000)
@@ -42,7 +42,7 @@ public sealed class EngineSettings
         if (StaleProcessSeconds < 2 || StaleProcessSeconds > 60)
             throw new InvalidOperationException("StaleProcessSeconds must be between 2 and 60.");
         foreach (var required in new[] { "GAME", "CHAT", "MEDIA", "AUX" })
-            Channels.TryAdd(required, new ChannelSettings());
+            ChannelMixes.TryAdd(required, new ChannelSettings());
         Personal ??= new MixSettings();
         Stream ??= new MixSettings();
     }
@@ -60,7 +60,7 @@ public sealed class EngineSettings
         var loaded = await JsonSerializer.DeserializeAsync<EngineSettings>(stream, JsonOptions, cancellationToken);
         loaded ??= new EngineSettings();
         loaded.ApplicationChannels = new Dictionary<string, string>(loaded.ApplicationChannels ?? new(), StringComparer.OrdinalIgnoreCase);
-        loaded.Channels = new Dictionary<string, ChannelSettings>(loaded.Channels ?? new(), StringComparer.OrdinalIgnoreCase);
+        loaded.ChannelMixes = new Dictionary<string, ChannelSettings>(loaded.ChannelMixes ?? new(), StringComparer.OrdinalIgnoreCase);
         return loaded;
     }
 
