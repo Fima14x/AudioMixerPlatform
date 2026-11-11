@@ -49,7 +49,6 @@ public sealed class SessionDiscoveryService : IAsyncDisposable
                 using var session = sessions[i];
                 try
                 {
-                    if (session.State == AudioSessionState.Expired) continue;
                     var pid = checked((int)session.GetProcessID);
                     if (pid <= 0 || pid == Environment.ProcessId) continue;
 
